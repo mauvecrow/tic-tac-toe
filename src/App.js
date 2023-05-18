@@ -1,26 +1,20 @@
 import { useState } from "react";
 
 export default function Game() {
-  //const [xIsNext, setXIsNext] = useState(true);
-
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
 
-  //const currentSquares = history[history.length - 1]; // read latest history
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
 
   function handlePlay(nextSquares) {
-    //setHistory([...history, nextSquares]); //create a new array, spread syntax to add history to it, also add next squares array
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
-    //setXIsNext(!xIsNext);
   }
 
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
-    //setXIsNext(nextMove % 2 === 0);
   }
 
   const moves = history.map((squares, move) => {
@@ -51,8 +45,8 @@ export default function Game() {
 
 function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
+    console.log("handleClick - input: " + i);
     if (squares[i] || calculateWinner(squares)) {
-      //if square already has X or O
       return;
     }
     const nextSquares = squares.slice();
@@ -65,24 +59,39 @@ function Board({ xIsNext, squares, onPlay }) {
     ? "Winner: " + winner
     : "Next player: " + (xIsNext ? "X" : "O");
 
+  function buildRows(numOfRows, numOfCells) {
+    let rows = [];
+    let offset = 0;
+    for (let i = 0; i < numOfRows; i++) {
+      rows.push(
+        <div key={"row_" + i} className="board-row">
+          {buildSquares(numOfCells, i, offset)}
+        </div>
+      );
+      offset += numOfCells - 1;
+    }
+    return rows;
+  }
+
+  function buildSquares(numOfCells, index, offset) {
+    let cells = [];
+    for (let j = 0; j < numOfCells; j++) {
+      let keyValue = j + index + offset;
+      cells.push(
+        <Square
+          key={keyValue}
+          value={squares[keyValue]}
+          onSquareClick={() => handleClick(keyValue)}
+        />
+      );
+    }
+    return cells;
+  }
+
   return (
     <>
       <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
+      {buildRows(3, 3)}
     </>
   );
 }
