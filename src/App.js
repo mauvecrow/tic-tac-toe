@@ -9,21 +9,22 @@ export default function Game() {
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
 
+  const [flip, setFlip] = useState(false);
+
   function handlePlay(nextSquares, input) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     const nextPositions = [
       ...positionHistory,
       `${Math.floor(input / 3) + 1},${(input % 3) + 1}`,
     ];
-    console.log(nextPositions);
     setPositionHistory(nextPositions);
-    setHistory(nextHistory); //reset history
+    setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
 
   function jumpTo(nextMove) {
     const resetHistory = [...history.slice(0, nextMove + 1)];
-    setHistory(resetHistory);
+    setHistory(resetHistory); //reset history
     setCurrentMove(nextMove);
     const resetPosition = [...positionHistory.slice(0, nextMove)];
     setPositionHistory(resetPosition);
@@ -31,17 +32,18 @@ export default function Game() {
 
   const moves = history.map((squares, move) => {
     let description;
-    // console.log("move position: " + history.position);
     if (move > 0) {
+      move = flip ? move : history.length - move;
       description = "Redo turn #" + move;
     } else {
       // description = "Go to game start";
       return;
     }
+
     return (
       <li key={move}>
         <span>
-          {`Played: ${positionHistory[move - 1]} `}
+          {`Played: ${positionHistory[move - 1]} | move=${move}`}
           <button onClick={() => jumpTo(move - 1)}>{description}</button>
         </span>
       </li>
@@ -55,6 +57,9 @@ export default function Game() {
       </div>
       <div className="game-info">
         <button onClick={() => jumpTo(0)}>Start Over</button>
+        <button onClick={() => setFlip(!flip)}>
+          {flip ? "Ascending" : "Descending"}
+        </button>
         <h3>Current Turn: {currentMove + 1}</h3>
         <ol>{moves}</ol>
       </div>
