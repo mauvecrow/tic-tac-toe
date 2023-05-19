@@ -9,7 +9,7 @@ export default function Game() {
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
 
-  const [flip, setFlip] = useState(false);
+  const [flip, setFlip] = useState(true);
 
   function handlePlay(nextSquares, input) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -60,7 +60,7 @@ export default function Game() {
         <button onClick={() => setFlip(!flip)}>
           {flip ? "Ascending" : "Descending"}
         </button>
-        <h3>Current Turn: {currentMove + 1}</h3>
+        <h3>You are at move #: {currentMove + 1}</h3>
         <ol>{moves}</ol>
       </div>
     </div>

@@ -1,11 +1,14 @@
+import { useState } from "react";
 import Square from "./Square";
 
 export default function Board({ xIsNext, squares, onPlay }) {
+  const initStyle = Array(9).fill(false);
+
   function handleClick(i) {
-    // console.log("handleClick - input: " + i);
     if (squares[i] || calculateWinner(squares)) {
       return;
     }
+
     const nextSquares = squares.slice();
     nextSquares[i] = xIsNext ? "X" : "O";
     onPlay(nextSquares, i);
@@ -13,8 +16,23 @@ export default function Board({ xIsNext, squares, onPlay }) {
 
   const winner = calculateWinner(squares);
   let status = winner
-    ? "Winner: " + winner
-    : "Next player: " + (xIsNext ? "X" : "O");
+    ? "Winner " + squares[winner[0]] + "!"
+    : turnCount() < 9
+    ? "Next player: " + (xIsNext ? "X" : "O")
+    : "Draw Game!";
+
+  function turnCount() {
+    const newSq = squares.slice();
+    return newSq
+      .map((e) => {
+        if (e === "X" || e === "O") {
+          return 1;
+        } else return 0;
+      })
+      .reduce((prev, cur) => prev + cur, 0);
+  }
+
+  let styles = winner ? applyStyles(winner) : initStyle;
 
   return (
     <>
@@ -22,7 +40,12 @@ export default function Board({ xIsNext, squares, onPlay }) {
       {buildRows(3, 3)}
     </>
   );
-
+  //----------------------------------------------------------------------
+  function applyStyles(trio) {
+    let result = initStyle.slice();
+    trio.forEach((e) => (result[e] = true));
+    return result;
+  }
   function buildSquares(numOfCells, index, offset) {
     let cells = [];
     for (let j = 0; j < numOfCells; j++) {
@@ -32,6 +55,7 @@ export default function Board({ xIsNext, squares, onPlay }) {
           key={keyValue}
           value={squares[keyValue]}
           onSquareClick={() => handleClick(keyValue)}
+          isHighlight={styles[keyValue]}
         />
       );
     }
@@ -67,7 +91,8 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      // return squares[a];
+      return lines[i];
     }
   }
   return null;
